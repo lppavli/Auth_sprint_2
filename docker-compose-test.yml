@@ -1,0 +1,44 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    volumes:
+      - $HOME/postgresql/data:/var/lib/postgresql/data
+    environment:
+      - "POSTGRES_PASSWORD"
+      - "POSTGRES_USER"
+      - "POSTGRES_DB"
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
+
+  auth:
+    build:
+      context: .
+    image: auth-image
+    container_name: auth
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=AuthApp
+      - FLASK_APP=auth/app.py
+    expose:
+      - "8000"
+    depends_on:
+      - postgres
+      - redis
+
+  tests:
+    image: auth-image
+    entrypoint: ["python", "-m", "pytest", "tests/functional/src"]
+    depends_on:
+      - postgres
+      - redis
