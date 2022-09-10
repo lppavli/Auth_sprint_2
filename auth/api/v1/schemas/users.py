@@ -5,6 +5,7 @@ from pydantic import BaseModel, UUID4
 class UserBase(BaseModel):
     login: str
     password: str
+    email: str
 
 
 class UserCreate(UserBase):

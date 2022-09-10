@@ -243,9 +243,42 @@ paths:
         - role_crud
       security:
         - jwtAuthAccess: []
+  /api/v1/oauth/authorize/{provider}:
+    get:
+      summary: войти через соцсети
+      tags:
+        - oauth_api
+      description: Вход пользователя в систему через соцсети
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '418':
+          $ref: '#/components/responses/ImaTeapot'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          description: "The provider of the OAuth service."
+          schema:
+            type: string
 
 components:
   schemas:
+    OauthProvider:
+      type: string
+      enum:
+        - yandex
+        - vk
     User:
       type: object
       required:
