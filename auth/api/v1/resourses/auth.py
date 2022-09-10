@@ -33,10 +33,14 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 @auth.route("/signup", methods=["POST"])
 def create_user():
     user = UserCreate(**request.get_json())
-    user_exist = db.session.query(User).filter(User.login == user.login).first()
+    user_exist = (
+        db.session.query(User)
+        .filter((User.login == user.login) | (User.email == user.email))
+        .first()
+    )
     if user_exist:
         return {"msg": "User already exist"}, HTTPStatus.CONFLICT
-    new_user = User(login=user.login)
+    new_user = User(login=user.login, email=user.email)
     new_user.set_password(user.password)
     db.session.add(new_user)
     db.session.commit()

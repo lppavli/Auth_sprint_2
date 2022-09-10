@@ -60,12 +60,25 @@ class User(db.Model):
         return check_password_hash(self.password, password)
 
 
+def create_partition(target, connection, **kw) -> None:
+    """creating partition by user_sign_in"""
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_smart" PARTITION OF "users_sign_in" FOR VALUES IN ('smart')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_mobile" PARTITION OF "users_sign_in" FOR VALUES IN ('mobile')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_web" PARTITION OF "users_sign_in" FOR VALUES IN ('web')"""
+    )
+
+
 class SocialAccount(db.Model):
-    __tablename__ = 'social_account'
+    __tablename__ = "social_account"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('social_accounts', lazy=True))
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship(User, backref=db.backref("social_accounts", lazy=True))
 
     social_id = db.Column(db.Text, nullable=False)
     social_name = db.Column(db.Text, nullable=False)
@@ -73,7 +86,7 @@ class SocialAccount(db.Model):
     # __table_args__ = (db.UniqueConstraint('social_id', 'social_name', name='social_pk'),)
 
     def __repr__(self):
-        return f'<SocialAccount {self.social_name}:{self.user_id}>'
+        return f"<SocialAccount {self.social_name}:{self.user_id}>"
 
 
 class Role(db.Model):

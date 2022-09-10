@@ -272,9 +272,6 @@ paths:
           schema:
             type: string
 
-#            $ref: '#/components/schemas/OauthProvider'
-
-
 components:
   schemas:
     OauthProvider:

@@ -1,9 +1,8 @@
-
 import json
 
 from flask import current_app, redirect, request, url_for, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
-from rauth import OAuth1Service, OAuth2Service
+from rauth import OAuth2Service
 
 
 class OAuthSignIn(object):
@@ -23,15 +22,16 @@ class OAuthSignIn(object):
 
     def get_callback_url(self):
 
-        return url_for('oauth_helper.oauth_callback', provider=self.provider_name,
-                       _external=True)
+        return url_for(
+            "oauth_helper.oauth_callback", provider=self.provider_name, _external=True
+        )
 
     def create_tokens(self, identity: str):
         access_token = create_access_token(
             identity=identity, additional_claims={"is_administrator": False}
         )
         refresh_token = create_refresh_token(identity=identity)
-        return jsonify(access_token=access_token.decode("utf-8"), refresh_token=refresh_token.decode("utf-8"))
+        return jsonify(access_token=access_token, refresh_token=refresh_token)
 
     @classmethod
     def get_provider(self, provider_name):
@@ -52,15 +52,17 @@ class YandexSignIn(OAuthSignIn):
             client_secret=self.consumer_secret,
             authorize_url="https://oauth.yandex.ru/authorize",
             access_token_url="https://oauth.yandex.ru/token",
-            base_url="https://oauth.yandex.ru"
+            base_url="https://oauth.yandex.ru",
         )
 
     def authorize(self):
         print(self.get_callback_url())
-        return redirect(self.service.get_authorize_url(
-            scope="login:email login:info",
-            response_type="code",
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="login:email login:info",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
@@ -70,11 +72,13 @@ class YandexSignIn(OAuthSignIn):
         if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={"code": request.args["code"],
-                  "response_type": "code",
-                  "grant_type": "authorization_code",
-                  "redirect_uri": self.get_callback_url()},
-            decoder=decode_json
+            data={
+                "code": request.args["code"],
+                "response_type": "code",
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=decode_json,
         )
         info = oauth_session.get(url="https://login.yandex.ru/info").json()
         social_id = info.get("id")
@@ -85,38 +89,38 @@ class YandexSignIn(OAuthSignIn):
 
 class GoogleSignIn(OAuthSignIn):
     def __init__(self):
-        super(GoogleSignIn, self).__init__('google')
+        super(GoogleSignIn, self).__init__("google")
         self.service = OAuth2Service(
-            name='google',
+            name="google",
             client_id="1010159233057-05mcpmoans8m83f3qlpmlllip7iurldk.apps.googleusercontent.com",
             client_secret="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",
-            authorize_url='https://accounts.google.com/o/oauth2/auth',
-            access_token_url='https://oauth2.googleapis.com/token',
-            base_url='https://www.googleapis.com/'
+            authorize_url="https://accounts.google.com/o/oauth2/auth",
+            access_token_url="https://oauth2.googleapis.com/token",
+            base_url="https://www.googleapis.com/",
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            scope='email',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="email",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
         def decode_json(payload):
-            return json.loads(payload.decode('utf-8'))
+            return json.loads(payload.decode("utf-8"))
 
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=decode_json
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=decode_json,
         )
-        me = oauth_session.get('oauth2/v2/userinfo').json()
-        return (
-            'google$' + me['id'],
-            me.get('email').split('@')[0],
-            me.get('email')
-        )
+        me = oauth_session.get("oauth2/v2/userinfo").json()
+        return ("google$" + me["id"], me.get("email").split("@")[0], me.get("email"))
