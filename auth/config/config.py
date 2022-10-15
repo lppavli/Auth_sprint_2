@@ -1,22 +1,18 @@
 import os
-from pydantic import BaseSettings, Field, BaseModel
-
-from dotenv import load_dotenv
-
-load_dotenv()
+from pydantic import BaseSettings, Field
 
 
 class BaseConfig(BaseSettings):
-    SECRET_KEY: str = Field("top_secret", env="SECRET_KEY")
+    SECRET_KEY = os.getenv("SECRET_KEY", "top_secret")
 
-    POSTGRES_HOST: str = Field("127.0.0.1", env="POSTGRES_HOST")
-    POSTGRES_PORT: int = Field(5432, env="POSTGRES_PORT")
-    POSTGRES_USER: str = Field("postgres", env="POSTGRES_USER")
-    POSTGRES_PASSWORD: str = Field("123456", env="POSTGRES_PASSWORD")
-    POSTGRES_DATABASE: str = Field("auth_database", env="POSTGRES_DATABASE")
+    POSTGRES_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
+    POSTGRES_PORT = os.getenv("POSTGRES_PORT", 5432)
+    POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "123456")
+    POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE", "auth_database")
 
-    REDIS_HOST: str = Field("127.0.0.1", env="REDIS_HOST")
-    REDIS_PORT: int = Field(6379, env="REDIS_PORT")
+    REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
+    REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 
     OAUTH_CREDENTIALS = {
         'google': {
@@ -35,6 +31,9 @@ class BaseConfig(BaseSettings):
 
         },
     }
+
+    class Config:
+        env_file = ".env"
 
 
 settings = BaseConfig()

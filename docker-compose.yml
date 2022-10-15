@@ -2,8 +2,6 @@ version: '3'
 services:
   postgres:
     image: postgres:13
-    ports:
-      - "5432:5432"
     expose:
       - "5432"
     volumes:
@@ -13,32 +11,29 @@ services:
 
   redis:
     image: redis:7.0-alpine
-    ports:
-      - "6379:6379"
     expose:
       - "6379"
-#  auth:
-#    build:
-#      context: .
-#    image: auth-image
-#    container_name: auth
-#    environment:
-#      - APP_NAME=AuthApp
-#      - FLASK_APP=auth/app.py
-#    expose:
-#      - "8000"
-#    depends_on:
-#      - postgres
-#      - redis
-#
-#  nginx:
-#    container_name: nginx
-#    image: nginx:1.21.6
-#    restart: always
-#    volumes:
-#      - ./default.conf:/etc/nginx/conf.d/default.conf
-#    ports:
-#      - 80:80
-#    depends_on:
-#      - auth
+  auth:
+    build:
+      context: .
+    image: auth-image
+    container_name: auth
+    environment:
+      - APP_NAME=AuthApp
+      - FLASK_APP=auth/app.py
+    expose:
+      - "8000"
+    depends_on:
+      - postgres
+      - redis
 
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.6
+    restart: always
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - auth

@@ -92,8 +92,8 @@ class GoogleSignIn(OAuthSignIn):
         super(GoogleSignIn, self).__init__("google")
         self.service = OAuth2Service(
             name="google",
-            client_id="1010159233057-05mcpmoans8m83f3qlpmlllip7iurldk.apps.googleusercontent.com",
-            client_secret="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",
+            client_id=self.consumer_id,
+            client_secret=self.consumer_secret,
             authorize_url="https://accounts.google.com/o/oauth2/auth",
             access_token_url="https://oauth2.googleapis.com/token",
             base_url="https://www.googleapis.com/",
