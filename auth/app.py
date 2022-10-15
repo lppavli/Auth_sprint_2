@@ -13,6 +13,8 @@ from auth.api.v1.resourses.users import users
 
 from auth.db.db import init_db
 from auth.config.config import settings
+from auth.config.jaeger import init_jaeger
+from auth.config.limiter import init_limiter
 
 
 def create_app():
@@ -29,6 +31,8 @@ def create_app():
     app.register_blueprint(users, url_prefix="/api/v1/users")
     app.register_blueprint(oauth, url_prefix="/api/v1/oauth")
     init_db(app)
+    init_jaeger(app)
+    init_limiter(app)
     return app
 
 
