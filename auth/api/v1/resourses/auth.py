@@ -35,8 +35,8 @@ def create_user():
     user = UserCreate(**request.get_json())
     user_exist = (
         db.session.query(User)
-        .filter((User.login == user.login) | (User.email == user.email))
-        .first()
+            .filter((User.login == user.login) | (User.email == user.email))
+            .first()
     )
     if user_exist:
         return {"msg": "User already exist"}, HTTPStatus.CONFLICT
@@ -44,7 +44,12 @@ def create_user():
     new_user.set_password(user.password)
     db.session.add(new_user)
     db.session.commit()
-    return {"msg": "User was created."}, HTTPStatus.CREATED
+    access_token = create_access_token(
+        identity=new_user.id, additional_claims={"is_administrator": False}
+    )
+    refresh_token = create_refresh_token(identity=new_user.id)
+    return {"access_token": access_token,
+            "refresh_token": refresh_token, }, HTTPStatus.CREATED
 
 
 @auth.route("/login", methods=["POST"])
@@ -82,8 +87,8 @@ def login_user(body: UserLogin):
             {
                 "message": "Successful Entry",
                 "user": user_id,
-                "access_token": access_token.decode("utf-8"),
-                "refresh_token": refresh_token.decode("utf-8"),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
             }
         )
     return jsonify({"message": "Wrong password"})

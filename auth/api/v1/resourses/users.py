@@ -1,9 +1,10 @@
 from http import HTTPStatus
 from functools import wraps
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_pydantic import validate
 
+from auth.api.v1.schemas.users import UserID, UserModel
 from auth.api.v1.schemas.roles import RoleUser, RoleBase
 from auth.db.db import db
 from auth.models.db_models import UserRole, User
@@ -39,6 +40,21 @@ def get_user_roles():
     if user is None:
         return {"message": "User not found. Check uuid"}
     return [RoleBase(name=role.name) for role in user.roles]
+
+
+@users.route("/user_by_id", methods=["GET"])
+def get_user_by_id():
+    user_id = request.values.get("user_id", None)
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return {"message": "User not found. Check uuid"}
+    user_data = {
+        "id": user.id,
+        'email': user.email,
+        'login': user.login,
+        "first_name": user.first_name,
+        "last_name": user.last_name}
+    return {"user": user_data}
 
 
 @users.route("/assign-roles", methods=["POST"])

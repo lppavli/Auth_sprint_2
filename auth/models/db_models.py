@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from flask_sqlalchemy import Model, SQLAlchemy
+from sqlalchemy import Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -45,7 +46,10 @@ class User(db.Model):
     )
     login = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
+    first_name = db.Column(db.String, nullable=True)
+    last_name = db.Column(db.String, nullable=True)
     password = db.Column(db.String, nullable=False)
+    is_verified = db.Column(db.Boolean, default=False)
     is_superuser = db.Column(db.Boolean, unique=False, default=False)
     roles = db.relationship("Role", secondary="users_roles", back_populates="users")
 

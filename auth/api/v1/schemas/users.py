@@ -5,15 +5,15 @@ from pydantic import BaseModel, UUID4
 class UserBase(BaseModel):
     login: str
     password: str
-    email: str
+
 
 
 class UserCreate(UserBase):
-    pass
+    email: str
 
 
 class UserLogin(UserBase):
-    pass
+   pass
 
 
 class UserModel(UserBase):
@@ -30,3 +30,7 @@ class History(BaseModel):
 class PasswordChange(BaseModel):
     old_password: str
     new_password: str
+
+
+class UserID(BaseModel):
+    id: UUID4
