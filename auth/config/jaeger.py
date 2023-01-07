@@ -25,5 +25,5 @@ def configure_tracer(app: Flask) -> None:
 
 
 def init_jaeger(app: Flask):
-    configure_tracer(app)
+    # configure_tracer(app)
     FlaskInstrumentor().instrument_app(app)
